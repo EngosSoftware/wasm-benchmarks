@@ -13,11 +13,11 @@ const TEMPLATE: &str = r#"
 )
 "#;
 
-fn wat_source(initial: usize, grow: usize) -> String {
+fn wat_source(initial: i32, grow: i32) -> String {
   TEMPLATE.replace("<INITIAL>", &initial.to_string()).replace("<GROW>", &grow.to_string())
 }
 
-fn bench_table_grow(initial: usize, grow: usize, iterations: usize) {
+fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
   assert!(iterations > 0);
   let clock = quanta::Clock::new();
   let wasm_bytes = wat::parse_str(wat_source(initial, grow)).unwrap();
@@ -30,8 +30,9 @@ fn bench_table_grow(initial: usize, grow: usize, iterations: usize) {
     let instance = wasmer::Instance::new(&mut store, &module, &wasmer::imports! {}).unwrap();
     let fun = instance.exports.get_typed_function::<(), i32>(&store, "fun").unwrap();
     let start = clock.raw();
-    _ = fun.call(&mut store);
+    let size = fun.call(&mut store).unwrap();
     let end = clock.raw();
+    assert_eq!(initial, size);
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
   let median = match medianu64(&mut ticks).unwrap() {
@@ -48,8 +49,8 @@ fn main() {
     eprintln!("invalid number of arguments");
     return;
   }
-  let initial = args[0].replace("_", "").parse::<usize>().unwrap();
-  let grow = args[1].replace("_", "").parse::<usize>().unwrap();
+  let initial = args[0].replace("_", "").parse::<i32>().unwrap();
+  let grow = args[1].replace("_", "").parse::<i32>().unwrap();
   let iterations = args[2].replace("_", "").parse::<usize>().unwrap();
   bench_table_grow(initial, grow, iterations);
 }
