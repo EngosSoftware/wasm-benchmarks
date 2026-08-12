@@ -34,8 +34,11 @@ fn bench_table_grow(initial: usize, grow: usize, iterations: usize) {
     let end = clock.raw();
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
-  let median_ticks = medianu64(&mut ticks).unwrap();
-  println!("initial = {}, grow = {}, {}", initial, grow, median_ticks);
+  let median = match medianu64(&mut ticks).unwrap() {
+    Medians::Odd(m) => *m,
+    Medians::Even((l, r)) => (l + r) / 2,
+  };
+  println!("initial = {}, grow = {}, time = {}", initial, grow, median);
 }
 
 fn main() {
