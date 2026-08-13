@@ -1,5 +1,6 @@
 mod utils;
 
+use crate::utils::human_friendly_seconds;
 use std::alloc::{GlobalAlloc, Layout, System};
 
 struct CopyingRealloc;
@@ -99,7 +100,10 @@ const MIN_SAMPLES: u64 = 20;
 const MAX_SAMPLES: u64 = 1000;
 
 /// Maximum measurement time in seconds.
-const MEASUREMENT_TIME: u64 = 1;
+#[cfg(target_os = "macos")]
+const MEASUREMENT_TIME: u64 = 1; // ca. 3 samples inside
+#[cfg(target_os = "linux")]
+const MEASUREMENT_TIME: u64 = 10; // ca. 3 samples inside
 
 fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
@@ -109,7 +113,7 @@ fn main() {
       let iterations = (MEASUREMENT_TIME * 1_000_000_000 / time_nanos).clamp(MIN_SAMPLES, MAX_SAMPLES);
       let time_nanos = bench_table_grow(*initial, *grow, iterations);
       let gas = time_nanos * 1000;
-      println!("{:14} {:14} {:14} {:14}", initial, grow, iterations, gas);
+      println!("{:14} {:14} {:14} {:14} {:>14}", initial, grow, iterations, gas, human_friendly_seconds(time_nanos));
     }
   }
 }

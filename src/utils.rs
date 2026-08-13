@@ -14,3 +14,16 @@ pub fn norm(mut input: Vec<u64>) -> u64 {
   let sum: u64 = filtered.iter().sum();
   sum.checked_div(filtered.len() as u64).unwrap_or_default()
 }
+
+pub fn human_friendly_seconds(nanos: u64) -> String {
+  if nanos < 1_000 {
+    return format!("{}.0 ns", nanos);
+  }
+  if nanos < 1_000_000 {
+    return format!("{:.1} µs", (nanos as f64) / 1_000.0);
+  }
+  if nanos < 1_000_000_000 {
+    return format!("{:.1} ms", (nanos as f64) / 1_000_000.0);
+  }
+  format!("{:.1} s", (nanos as f64) / 1_000_000_000.0)
+}
