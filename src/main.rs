@@ -50,7 +50,7 @@ fn wat_source(initial: i32, grow: i32) -> String {
   TEMPLATE.replace("<INITIAL>", &initial.to_string()).replace("<GROW>", &grow.to_string())
 }
 
-fn bench_table_grow(initial: i32, grow: i32, iterations: usize) -> u64 {
+fn bench_table_grow(initial: i32, grow: i32, iterations: u64) -> u64 {
   assert!(iterations > 0);
   let clock = quanta::Clock::new();
   let wasm_bytes = wat::parse_str(wat_source(initial, grow)).unwrap();
@@ -71,12 +71,15 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: usize) -> u64 {
   norm::calc(ticks)
 }
 
+/// Initial table size.
 #[rustfmt::skip]
-const INITIAL: &[usize] = &[
+const INITIAL: &[i32] = &[
   1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000
 ];
+
+/// Grow sizes.
 #[rustfmt::skip]
-const GROW: &[usize] = &[
+const GROW: &[i32] = &[
   0, 1, 2, 5,
   10, 20, 30, 50, 60, 70, 80, 90,
   100, 200, 300, 400, 500, 600, 700, 800, 900,
@@ -89,17 +92,24 @@ const GROW: &[usize] = &[
   1_000_000_000,
 ];
 
+/// Minimum number of samples.
+const MIN_SAMPLES: u64 = 20;
+
+/// Maximum number of samples.
+const MAX_SAMPLES: u64 = 1000;
+
+/// Maximum measurement time in seconds.
+const MEASUREMENT_TIME: u64 = 1;
+
 fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
-  let args = std::env::args().skip(1).collect::<Vec<String>>();
-  if args.len() != 3 {
-    eprintln!("invalid number of arguments");
-    return;
+  for initial in INITIAL {
+    for grow in GROW {
+      let time_nanos = bench_table_grow(*initial, *grow, 5);
+      let iterations = (MEASUREMENT_TIME * 1_000_000_000 / time_nanos).clamp(MIN_SAMPLES, MAX_SAMPLES);
+      let time_nanos = bench_table_grow(*initial, *grow, iterations);
+      let gas = time_nanos * 1000;
+      println!("{:14} {:14} {:14} {:14}", initial, grow, iterations, gas);
+    }
   }
-  let initial = args[0].replace("_", "").parse::<i32>().unwrap();
-  let grow = args[1].replace("_", "").parse::<i32>().unwrap();
-  let iterations = args[2].replace("_", "").parse::<usize>().unwrap();
-  let time_nanos = bench_table_grow(initial, grow, iterations);
-  let gas = time_nanos * 1000;
-  println!("{:14} {:14} {:14}", initial, grow, gas);
 }
