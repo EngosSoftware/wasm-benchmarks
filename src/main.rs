@@ -50,7 +50,7 @@ fn wat_source(initial: i32, grow: i32) -> String {
   TEMPLATE.replace("<INITIAL>", &initial.to_string()).replace("<GROW>", &grow.to_string())
 }
 
-fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
+fn bench_table_grow(initial: i32, grow: i32, iterations: usize) -> u64 {
   assert!(iterations > 0);
   let clock = quanta::Clock::new();
   let wasm_bytes = wat::parse_str(wat_source(initial, grow)).unwrap();
@@ -68,9 +68,26 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
     assert_eq!(initial, size);
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
-  let time_nanos = norm::calc(ticks);
-  println!("initial = {}, grow = {}, time = {}", initial, grow, time_nanos);
+  norm::calc(ticks)
 }
+
+#[rustfmt::skip]
+const INITIAL: &[usize] = &[
+  1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000
+];
+#[rustfmt::skip]
+const GROW: &[usize] = &[
+  0, 1, 2, 5,
+  10, 20, 30, 50, 60, 70, 80, 90,
+  100, 200, 300, 400, 500, 600, 700, 800, 900,
+  1_000, 2_000, 3_000, 4_000, 5_000, 6_000, 7_000, 8_000, 9_000,
+  10_000, 20_000, 30_000, 40_000, 50_000, 60_000, 70_000, 80_000, 90_000,
+  100_000, 200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000,
+  1_000_000, 2_000_000, 3_000_000, 4_000_000, 5_000_000, 6_000_000, 7_000_000, 8_000_000, 9_000_000,
+  10_000_000, 20_000_000, 30_000_000, 40_000_000, 50_000_000, 60_000_000, 70_000_000, 80_000_000, 90_000_000,
+  100_000_000, 200_000_000, 300_000_000, 400_000_000, 500_000_000, 600_000_000, 700_000_000, 800_000_000, 900_000_000,
+  1_000_000_000,
+];
 
 fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
@@ -82,5 +99,7 @@ fn main() {
   let initial = args[0].replace("_", "").parse::<i32>().unwrap();
   let grow = args[1].replace("_", "").parse::<i32>().unwrap();
   let iterations = args[2].replace("_", "").parse::<usize>().unwrap();
-  bench_table_grow(initial, grow, iterations);
+  let time_nanos = bench_table_grow(initial, grow, iterations);
+  let gas = time_nanos * 1000;
+  println!("{:14} {:14} {:14}", initial, grow, gas);
 }
