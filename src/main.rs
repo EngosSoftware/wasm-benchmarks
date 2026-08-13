@@ -107,6 +107,7 @@ const MEASUREMENT_TIME: u64 = 10; // ca. 3 samples inside
 
 fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
+  println!("{:>14} {:>14} {:>14} {:>14} {:>14} {:>14} {:>14}", "initial", "grow", "iter", "low", "mid", "high", "time");
   for initial in INITIAL {
     for grow in GROW {
       let (_, time_nanos, _) = bench_table_grow(*initial, *grow, 5);
