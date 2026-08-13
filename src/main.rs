@@ -101,9 +101,9 @@ const MAX_SAMPLES: u64 = 1000;
 
 /// Maximum measurement time in seconds.
 #[cfg(target_os = "macos")]
-const MEASUREMENT_TIME: u64 = 1; // ca. 3 samples inside
+const MEASUREMENT_TIME: u64 = 1; // ca. 3 longest samples inside
 #[cfg(target_os = "linux")]
-const MEASUREMENT_TIME: u64 = 10; // ca. 3 samples inside
+const MEASUREMENT_TIME: u64 = 10; // ca. 3 longest samples inside
 
 fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
