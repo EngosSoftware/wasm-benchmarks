@@ -68,8 +68,8 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
     assert_eq!(initial, size);
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
-  let median = norm::calc(ticks);
-  println!("initial = {}, grow = {}, time = {}", initial, grow, median);
+  let time_nanos = norm::calc(ticks);
+  println!("initial = {}, grow = {}, time = {}", initial, grow, time_nanos);
 }
 
 fn main() {

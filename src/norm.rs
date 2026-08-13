@@ -12,5 +12,5 @@ pub fn calc(mut input: Vec<u64>) -> u64 {
     }
   }
   let sum: u64 = filtered.iter().sum();
-  sum / (filtered.len() as u64)
+  sum.checked_div(filtered.len() as u64).unwrap_or_default()
 }
