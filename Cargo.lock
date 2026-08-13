@@ -837,12 +837,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indxvec"
-version = "1.9.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f80ec91439747afc38510dd9ddac3d776f3485197b9b7d6cc81c719db5cd8faa"
-
-[[package]]
 name = "itertools"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -939,15 +933,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d640282b302c0bb0a2a8e0233ead9035e3bed871f0b7e81fe4a1ec829765db44"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "medians"
-version = "3.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0567e21750b99d3ddbc4f57fc09be39381785d8930405a9b29c20c4b34bdcc31"
-dependencies = [
- "indxvec",
 ]
 
 [[package]]
@@ -1840,7 +1825,6 @@ name = "wasm-benchmarks"
 version = "0.1.0"
 dependencies = [
  "core_affinity",
- "medians",
  "quanta",
  "wasmer",
  "wat",

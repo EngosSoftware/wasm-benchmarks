@@ -6,6 +6,5 @@ edition = "2024"
 [dependencies]
 wat = "1.256.0"
 wasmer = { version = "=5.0.6", features = ["singlepass"] }
-medians = "3.0.12"
 quanta = "0.12.6"
 core_affinity = "0.8.3"

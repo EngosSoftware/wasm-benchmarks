@@ -1,4 +1,5 @@
-use medians::*;
+mod norm;
+
 use std::alloc::{GlobalAlloc, Layout, System};
 
 struct CopyingRealloc;
@@ -67,10 +68,7 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
     assert_eq!(initial, size);
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
-  let median = match medianu64(&mut ticks).unwrap() {
-    Medians::Odd(m) => *m,
-    Medians::Even((l, r)) => (l + r) / 2,
-  };
+  let median = norm::calc(ticks);
   println!("initial = {}, grow = {}, time = {}", initial, grow, median);
 }
 
