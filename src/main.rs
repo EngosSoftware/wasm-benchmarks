@@ -1,4 +1,4 @@
-mod norm;
+mod utils;
 
 use std::alloc::{GlobalAlloc, Layout, System};
 
@@ -68,7 +68,7 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: u64) -> u64 {
     assert_eq!(initial, size);
     ticks.push(clock.delta(start, end).as_nanos() as u64);
   }
-  norm::calc(ticks)
+  utils::norm(ticks)
 }
 
 /// Initial table size.

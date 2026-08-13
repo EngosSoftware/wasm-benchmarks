@@ -1,6 +1,6 @@
 /// Returns a normalized result value from a vector of input values.
 #[allow(clippy::manual_is_multiple_of)]
-pub fn calc(mut input: Vec<u64>) -> u64 {
+pub fn norm(mut input: Vec<u64>) -> u64 {
   input.sort_unstable();
   let n = input.len();
   let median = if n % 2 == 0 { (input[n / 2 - 1] + input[n / 2]) / 2 } else { input[n / 2] };
