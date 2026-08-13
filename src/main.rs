@@ -51,7 +51,7 @@ fn wat_source(initial: i32, grow: i32) -> String {
   TEMPLATE.replace("<INITIAL>", &initial.to_string()).replace("<GROW>", &grow.to_string())
 }
 
-fn bench_table_grow(initial: i32, grow: i32, iterations: u64) -> u64 {
+fn bench_table_grow(initial: i32, grow: i32, iterations: u64) -> (u64, u64, u64) {
   assert!(iterations > 0);
   let clock = quanta::Clock::new();
   let wasm_bytes = wat::parse_str(wat_source(initial, grow)).unwrap();
@@ -109,11 +109,22 @@ fn main() {
   core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
   for initial in INITIAL {
     for grow in GROW {
-      let time_nanos = bench_table_grow(*initial, *grow, 5);
+      let (_, time_nanos, _) = bench_table_grow(*initial, *grow, 5);
       let iterations = (MEASUREMENT_TIME * 1_000_000_000 / time_nanos).clamp(MIN_SAMPLES, MAX_SAMPLES);
-      let time_nanos = bench_table_grow(*initial, *grow, iterations);
-      let gas = time_nanos * 1000;
-      println!("{:14} {:14} {:14} {:14} {:>14}", initial, grow, iterations, gas, human_friendly_seconds(time_nanos));
+      let (low, mid, high) = bench_table_grow(*initial, *grow, iterations);
+      let low_gas = low * 1_000;
+      let mid_gas = mid * 1_000;
+      let high_gas = high * 1_000;
+      println!(
+        "{:14} {:14} {:14} {:14} {:14} {:14} {:>14}",
+        initial,
+        grow,
+        iterations,
+        low_gas,
+        mid_gas,
+        high_gas,
+        human_friendly_seconds(mid)
+      );
     }
   }
 }

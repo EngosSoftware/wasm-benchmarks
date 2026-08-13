@@ -1,6 +1,6 @@
 /// Returns a normalized result value from a vector of input values.
 #[allow(clippy::manual_is_multiple_of)]
-pub fn norm(mut input: Vec<u64>) -> u64 {
+pub fn norm(mut input: Vec<u64>) -> (u64, u64, u64) {
   input.sort_unstable();
   let n = input.len();
   let median = if n % 2 == 0 { (input[n / 2 - 1] + input[n / 2]) / 2 } else { input[n / 2] };
@@ -12,7 +12,10 @@ pub fn norm(mut input: Vec<u64>) -> u64 {
     }
   }
   let sum: u64 = filtered.iter().sum();
-  sum.checked_div(filtered.len() as u64).unwrap_or_default()
+  let mid = sum.checked_div(filtered.len() as u64).unwrap_or_default();
+  let low = filtered.iter().min().unwrap();
+  let high = filtered.iter().max().unwrap();
+  (*low, mid, *high)
 }
 
 pub fn human_friendly_seconds(nanos: u64) -> String {
