@@ -1,4 +1,36 @@
 use medians::*;
+use std::alloc::{GlobalAlloc, Layout, System};
+
+struct CopyingRealloc;
+
+unsafe impl GlobalAlloc for CopyingRealloc {
+  unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+    unsafe { System.alloc(layout) }
+  }
+
+  unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+    unsafe { System.dealloc(ptr, layout) }
+  }
+
+  unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+    unsafe { System.alloc_zeroed(layout) }
+  }
+
+  unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+    unsafe {
+      let new_layout = Layout::from_size_align_unchecked(new_size, layout.align());
+      let new_ptr = System.alloc(new_layout);
+      if !new_ptr.is_null() {
+        std::ptr::copy_nonoverlapping(ptr, new_ptr, layout.size().min(new_size));
+        System.dealloc(ptr, layout);
+      }
+      new_ptr
+    }
+  }
+}
+
+#[global_allocator]
+static ALLOC: CopyingRealloc = CopyingRealloc;
 
 const TEMPLATE: &str = r#"
 (module
@@ -43,7 +75,7 @@ fn bench_table_grow(initial: i32, grow: i32, iterations: usize) {
 }
 
 fn main() {
-  core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[0]);
+  core_affinity::set_for_current(core_affinity::get_core_ids().unwrap()[1]);
   let args = std::env::args().skip(1).collect::<Vec<String>>();
   if args.len() != 3 {
     eprintln!("invalid number of arguments");
